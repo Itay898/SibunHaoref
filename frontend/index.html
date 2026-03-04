@@ -409,6 +409,10 @@
     .loc-name { color: var(--text); font-weight: 700; }
     .loc-dist { font-size: 12px; color: var(--text-dim); }
 
+    /* Manual chooser */
+    .manual-chooser { display: none; margin-top: 12px; width: 100%; text-align: center; }
+    .manual-chooser select { width: 100%; max-width: 420px; padding: 10px 12px; border-radius: 12px; background: rgba(0,0,0,0.3); color: var(--text); border: 1px solid rgba(255,255,255,0.06); }
+    .manual-chooser .btn { margin-top: 8px; padding: 8px 14px; border-radius: 12px; background: var(--accent); color: var(--bg); border: none; cursor: pointer; font-weight: 700; }
     .share-btn {
       margin-top: 12px;
       background: rgba(255,255,255,0.08);
@@ -502,6 +506,16 @@
       <div class="location-bar" id="location_bar">
         <span class="loc-pin">📍</span>
         <span id="loc_text">מאתרים את הדוש הקרוב אליכם...</span>
+      </div>
+
+      <div class="manual-chooser" id="manual_chooser">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+          <select id="manual_select" aria-label="בחר אזור ידנית"></select>
+          <div>
+            <button class="btn" id="manual_choose_btn">בחר</button>
+            <button class="btn" id="manual_cancel_btn" style="margin-left:8px;background:rgba(255,255,255,0.08);color:var(--text);">ביטול</button>
+          </div>
+        </div>
       </div>
 
       <button class="share-btn hidden" id="share_btn">
@@ -917,12 +931,65 @@
           const ticker = el("ticker");
           gaugeWrap.className = "gauge-wrap loading error";
           wrap.classList.remove("hidden");
-          ticker.textContent = err.code === 1 ? "בלי מיקום, איך נדע מתי להוציא אתכם מהמקלחת? נא לאשר גישה." : "משהו השתבש עם הרדאר, כדאי לרענן את הדף.";
+          const msg = err.code === 1 ? "בלי מיקום, איך נדע מתי להוציא אתכם מהמקלחת? נא לאשר גישה." : "משהו השתבש עם הרדאר, כדאי לרענן את הדף.";
+          ticker.innerHTML = `${msg} <a href="#" id="manual_link" style="color:var(--accent);font-weight:700;margin-right:8px;text-decoration:none;">בחר ידנית</a>`;
           ticker.style.color = "var(--orange)";
+          setTimeout(() => {
+            const link = document.getElementById('manual_link');
+            if (link) link.addEventListener('click', (ev) => { ev.preventDefault(); showManualChooser(); });
+          }, 50);
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
     }
+
+      // --- Manual chooser support ---
+      async function loadManualLocations() {
+        const sel = el('manual_select');
+        sel.innerHTML = '';
+        try {
+          const r = await fetch(`${API}/locations`);
+          if (!r.ok) throw new Error('locations failed');
+          const list = await r.json();
+          list.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            sel.appendChild(opt);
+          });
+        } catch (e) {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = 'לא ניתן לטעון רשימת אזורים';
+          sel.appendChild(opt);
+        }
+      }
+
+      function showManualChooser() {
+        const box = el('manual_chooser');
+        box.style.display = 'block';
+        loadManualLocations().then(() => { el('manual_select').focus(); });
+      }
+
+      function hideManualChooser() {
+        const box = el('manual_chooser');
+        box.style.display = 'none';
+      }
+
+      // Manual chooser buttons
+      el('manual_choose_btn').addEventListener('click', async () => {
+        const sel = el('manual_select');
+        const v = sel.value;
+        if (!v) return;
+        state.areas = [v];
+        state.locationReady = true;
+        el('loc_text').innerHTML = `<span class="loc-name">${v}</span> <span class="loc-dist">(בחרת ידנית)</span>`;
+        hideManualChooser();
+        await updateDashboard();
+        setInterval(updateDashboard, 30000);
+      });
+
+      el('manual_cancel_btn').addEventListener('click', () => { hideManualChooser(); });
 
     // --- Lifecycle ---
     document.addEventListener("visibilitychange", () => {
