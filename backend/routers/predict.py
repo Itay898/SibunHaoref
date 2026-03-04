@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query, HTTPException
 
-from models import PredictResponse
-from services.risk_engine import calculate_risk
+from ..models import PredictResponse
+from ..services.risk_engine import calculate_risk
 
 router = APIRouter()
 

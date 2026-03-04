@@ -2,7 +2,7 @@ import asyncio
 import time
 from typing import Optional
 
-from config import ALERT_HISTORY_WINDOW_HOURS, MAX_HISTORY_RECORDS, ROCKETALERT_HISTORY_DAYS
+from ..config import ALERT_HISTORY_WINDOW_HOURS, MAX_HISTORY_RECORDS, ROCKETALERT_HISTORY_DAYS
 
 
 class AlertStore:

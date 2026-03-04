@@ -9,10 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from services.oref_poller import poll_loop
-from services.alert_store import store
-from routers import predict, locations, alerts
-from config import DEV_MODE
+from .services.oref_poller import poll_loop
+from .services.alert_store import store
+from .routers import predict, locations, alerts
+from .config import DEV_MODE
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger(__name__)

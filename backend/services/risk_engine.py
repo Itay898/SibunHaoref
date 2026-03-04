@@ -6,14 +6,14 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Optional
 
-from config import (
+from ..config import (
     WEIGHT_RECENCY, WEIGHT_BURST, WEIGHT_VOLUME,
     WEIGHT_PATTERN, WEIGHT_PROXIMITY,
     WEIGHT_ESCALATION, WEIGHT_CLUSTER, WEIGHT_DAY_OF_WEEK,
     LEVEL_GREEN_MAX, LEVEL_YELLOW_MAX, LEVEL_ORANGE_MAX,
 )
-from models import PredictResponse, Reasoning, LocalizedText
-from services.alert_store import store
+from ..models import PredictResponse, Reasoning, LocalizedText
+from ..services.alert_store import store
 
 # Trend tracking: keyed by frozenset of areas -> deque of (timestamp, risk)
 _trend_buffer: dict[frozenset, deque] = {}
@@ -161,7 +161,7 @@ def _pattern_module(areas: set[str]) -> Reasoning:
 
 
 def _proximity_module(areas: set[str]) -> Reasoning:
-    from routers.locations import _load_coords, _haversine_km
+    from ..routers.locations import _load_coords, _haversine_km
 
     coords = _load_coords()
     # Find coordinates of user's areas

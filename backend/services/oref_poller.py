@@ -6,14 +6,14 @@ import time
 
 import httpx
 
-from config import (
+from ..config import (
     OREF_ALERTS_URL, OREF_HISTORY_URL, OREF_HEADERS,
     OREF_POLL_INTERVAL_SEC, OREF_TIMEOUT_SEC,
     TZEVAADOM_HISTORY_URL, DEV_MODE,
     ROCKETALERT_API_URL, ROCKETALERT_HISTORY_DAYS,
 )
-from services.alert_store import store
-from routers.locations import _load_areas
+from ..services.alert_store import store
+from ..routers.locations import _load_areas
 
 logger = logging.getLogger(__name__)
 

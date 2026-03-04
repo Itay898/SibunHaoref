@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from models import CurrentAlertsResponse, StoredAlert
-from services.alert_store import store
+from ..models import CurrentAlertsResponse, StoredAlert
+from ..services.alert_store import store
 
 router = APIRouter()
 
