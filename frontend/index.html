@@ -523,6 +523,11 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
       </button>
 
+      <button class="share-btn hidden" id="change_location_btn">
+        <span>שנה מיקום</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 2.2"/></svg>
+      </button>
+
       <div class="divider"></div>
 
       <div class="risk-section" id="risk_section" style="display: none;">
@@ -556,6 +561,7 @@
       activeAlert: false, sirenPlaying: false, wakeLock: null,
       notificationPermission: Notification.permission || "default",
       shelterCountdownInterval: null,
+      updateDashboardInterval: null,
       riskOpen: true,
       currentRiskText: ""
     };
@@ -766,6 +772,7 @@
           el("t_reco").style.display = "";
           el("level_pill").classList.add("visible");
           if (navigator.share) el("share_btn").classList.remove("hidden");
+          el("change_location_btn").classList.remove("hidden");
         }
 
         showAlertBanner({ isActiveNow: result.isActiveNow });
@@ -863,6 +870,11 @@
       }
     });
 
+    // Change Location Action
+    el("change_location_btn").addEventListener("click", () => {
+      showManualChooser();
+    });
+
     // --- Auto Geolocation ---
     async function autoLocate() {
       const gaugeWrap = document.querySelector(".gauge-wrap");
@@ -914,7 +926,8 @@
               el("loc_text").innerHTML = `<span class="loc-name">${n.name}</span> <span class="loc-dist">${n.distance_km} ק"מ | +${state.areas.length - 1} אזורים</span>`;
               updateConnectionStatus();
               await updateDashboard();
-              setInterval(updateDashboard, 30000);
+              if (state.updateDashboardInterval) clearInterval(state.updateDashboardInterval);
+              state.updateDashboardInterval = setInterval(updateDashboard, 30000);
             } else {
               el("loc_text").textContent = "לא מצאנו אזורי התרעה באזור שלך";
               gaugeWrap.className = "gauge-wrap loading error";
@@ -1002,7 +1015,8 @@
         el('loc_text').innerHTML = `<span class="loc-name">${v}</span> <span class="loc-dist">(בחרת ידנית)</span>`;
         hideManualChooser();
         await updateDashboard();
-        setInterval(updateDashboard, 30000);
+        if (state.updateDashboardInterval) clearInterval(state.updateDashboardInterval);
+        state.updateDashboardInterval = setInterval(updateDashboard, 30000);
       });
 
       el('manual_cancel_btn').addEventListener('click', () => { hideManualChooser(); });
