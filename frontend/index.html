@@ -896,6 +896,7 @@
 
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
+          clearTimeout(geoTimeout); // Cancel fallback since we got location
           if (!hasPermission) {
             gaugeWrap.className = "gauge-wrap loading scanning";
             el("ticker").style.color = "var(--text-dim)";
@@ -926,6 +927,7 @@
           }
         },
         (err) => {
+          clearTimeout(geoTimeout); // Cancel fallback timer
           stopTicker();
           const wrap = el("ticker_wrap");
           const ticker = el("ticker");
@@ -939,9 +941,23 @@
             if (link) link.addEventListener('click', (ev) => { ev.preventDefault(); showManualChooser(); });
           }, 50);
         },
-        { enableHighAccuracy: true, timeout: 10000 }
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 }
       );
     }
+
+    // Timeout fallback: if geolocation takes too long, auto-show manual chooser after 25s
+    let geoTimeout = setTimeout(() => {
+      if (!state.locationReady && document.querySelector(".gauge-wrap.loading")) {
+        stopTicker();
+        el("ticker_wrap").classList.remove("hidden");
+        el("ticker").innerHTML = `😅 הרדאר נתקע. <a href="#" id="manual_fallback" style="color:var(--accent);font-weight:700;margin-right:8px;">בחר אזור באופן ידני</a>`;
+        el("ticker").style.color = "var(--orange)";
+        setTimeout(() => {
+          const link = document.getElementById('manual_fallback');
+          if (link) link.addEventListener('click', (ev) => { ev.preventDefault(); showManualChooser(); });
+        }, 50);
+      }
+    }, 25000);
 
       // --- Manual chooser support ---
       async function loadManualLocations() {
