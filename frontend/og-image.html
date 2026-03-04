@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+      font-family: 'Rubik', sans-serif;
+      background: #0b1121;
+      background-image: radial-gradient(circle at 30% 20%, #1e293b 0%, #0b1121 70%);
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      direction: rtl;
+    }
+
+    /* Subtle grid pattern */
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Glow orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.3;
+    }
+    .orb-1 { width: 400px; height: 400px; background: #10b981; top: -100px; right: -50px; }
+    .orb-2 { width: 300px; height: 300px; background: #f97316; bottom: -80px; left: -30px; opacity: 0.15; }
+    .orb-3 { width: 200px; height: 200px; background: #fbbf24; top: 50%; left: 30%; opacity: 0.08; }
+
+    .content {
+      display: flex;
+      align-items: center;
+      gap: 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Gauge */
+    .gauge-area {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      flex-shrink: 0;
+    }
+    .gauge-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .gauge-svg circle { fill: none; stroke-linecap: round; }
+    .gauge-svg .track { stroke: rgba(255,255,255,0.06); stroke-width: 12; }
+    .gauge-svg .progress { stroke: #10b981; stroke-width: 12; stroke-dasharray: 691; stroke-dashoffset: 518; }
+    .gauge-svg .progress-glow { stroke: #10b981; stroke-width: 20; stroke-dasharray: 691; stroke-dashoffset: 518; opacity: 0.15; filter: blur(4px); }
+
+    .gauge-score {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .gauge-score .num {
+      font-size: 80px;
+      font-weight: 900;
+      line-height: 1;
+      color: #f8fafc;
+      direction: ltr;
+    }
+    .gauge-score .pct {
+      font-size: 32px;
+      font-weight: 700;
+      color: #10b981;
+      direction: ltr;
+    }
+    .gauge-score .label {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-top: 6px;
+    }
+    .gauge-glow {
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.15), transparent 70%);
+    }
+
+    /* Text side */
+    .text-side {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 560px;
+    }
+    .emoji-title {
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.2;
+    }
+    .tagline {
+      font-size: 22px;
+      color: #cbd5e1;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .pill-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #cbd5e1;
+    }
+    .pill-accent {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #10b981;
+    }
+
+    /* Bottom bar */
+    .bottom-bar {
+      position: absolute;
+      bottom: 28px;
+      left: 40px;
+      right: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1;
+    }
+    .url {
+      font-size: 16px;
+      color: #64748b;
+      font-weight: 500;
+      direction: ltr;
+    }
+    .credit {
+      font-size: 14px;
+      color: #475569;
+      font-weight: 400;
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="content">
+    <div class="gauge-area">
+      <div class="gauge-glow"></div>
+      <svg class="gauge-svg" viewBox="0 0 240 240">
+        <circle class="track" cx="120" cy="120" r="110"></circle>
+        <circle class="progress-glow" cx="120" cy="120" r="110"></circle>
+        <circle class="progress" cx="120" cy="120" r="110"></circle>
+      </svg>
+      <div class="gauge-score">
+        <div><span class="num">25</span><span class="pct">%</span></div>
+        <div class="label">סיכוי לאזעקה בזמן המקלחת</div>
+      </div>
+    </div>
+
+    <div class="text-side">
+      <div class="emoji-title">🚿 סיבון העורף</div>
+      <div class="tagline">בטוח להתקלח עכשיו? בודקים את הסיכוי<br/>לאזעקה באזורך בזמן אמת.</div>
+      <div class="pill-row">
+        <span class="pill pill-accent">✅ מקלחת בטוחה</span>
+        <span class="pill">📍 מבוסס מיקום</span>
+        <span class="pill">⚡ נתוני פיקוד העורף</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <span class="url">SibunHaoref.com</span>
+  </div>
+</body>
+</html>
