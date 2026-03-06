@@ -236,6 +236,17 @@
     .reco-headline { font-weight: 800; }
     .reco-detail { font-weight: 400; color: var(--text-muted); font-size: 16px; }
 
+    /* Stats Strip */
+    .stats-row { display: flex; gap: 8px; margin: 12px 0 4px; width: 100%; }
+    .stat-card {
+      flex: 1; background: var(--glass); border: 1px solid var(--border);
+      border-radius: 14px; padding: 12px 6px 10px;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    .stat-icon { font-size: 16px; line-height: 1; }
+    .stat-value { font-size: 20px; font-weight: 800; color: var(--text); line-height: 1.1; }
+    .stat-label { font-size: 10px; color: var(--text-dim); text-align: center; line-height: 1.3; }
+
     /* Gauge Container */
     .gauge-wrap { 
       position: relative; 
@@ -738,6 +749,24 @@
 
       <div class="reco-text" id="t_reco" style="display:none;"></div>
 
+      <div class="stats-row" id="stats_row" style="display:none">
+        <div class="stat-card">
+          <div class="stat-icon">🚨</div>
+          <div class="stat-value" id="stat_alerts">-</div>
+          <div class="stat-label">אזעקות ב-30 יום</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏱</div>
+          <div class="stat-value" id="stat_shelter">-</div>
+          <div class="stat-label">דקות בממ"ד</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-value" id="stat_rank">-</div>
+          <div class="stat-label" id="stat_rank_label">דירוג</div>
+        </div>
+      </div>
+
       <div class="location-bar" id="location_bar" style="display:none">
         <div class="ticker-wrap hidden" id="ticker_wrap"><div class="ticker" id="ticker">מכיילים את הרדאר אל מול זרם המים...</div></div>
         <span class="loc-pin" id="loc_pin" style="display:none">📍</span>
@@ -998,6 +1027,26 @@
       el("ticker_wrap").classList.add("hidden");
     }
 
+    // --- City Stats ---
+    async function updateStats() {
+      if (!state.areas.length) return;
+      try {
+        const loc = encodeURIComponent(state.areas.join("|"));
+        const data = await fetch(`${API}/stats?location=${loc}&window_days=30`).then(r => r.json());
+        el("stat_alerts").textContent = data.alert_count.toLocaleString("he-IL");
+        el("stat_shelter").textContent = Math.round(data.shelter_time_sec / 60).toLocaleString("he-IL");
+        if (data.rank) {
+          el("stat_rank").textContent = `#${data.rank}`;
+          el("stat_rank_label").textContent = `מתוך ${data.total_cities.toLocaleString("he-IL")} ערים`;
+        } else {
+          el("stat_rank").textContent = "-";
+        }
+        el("stats_row").style.display = "";
+      } catch (e) {
+        console.warn("Stats fetch failed:", e);
+      }
+    }
+
     // --- Connection Status ---
     function updateConnectionStatus() {
       if (!state.locationReady) return;
@@ -1228,6 +1277,7 @@
               el("loc_pin").style.display = "";
               updateConnectionStatus();
               await updateDashboard();
+              updateStats();
               if (state.updateDashboardInterval) clearInterval(state.updateDashboardInterval);
               state.updateDashboardInterval = setInterval(updateDashboard, 30000);
             } else {
@@ -1322,6 +1372,7 @@
         el('loc_pin').style.display = "";
         el('change_location_link').classList.add('visible');
         await updateDashboard();
+        updateStats();
         if (state.updateDashboardInterval) clearInterval(state.updateDashboardInterval);
         state.updateDashboardInterval = setInterval(updateDashboard, 30000);
       }

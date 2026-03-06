@@ -172,6 +172,36 @@ class AlertStore:
                 freq[dt.weekday()] += 1
         return freq
 
+    def get_stats_for_areas(self, areas: list[str], window_days: int = 30) -> dict:
+        """Return alert count, city ranking, and total cities for the given areas."""
+        cutoff = time.time() - window_days * 86400
+        areas_set = set(areas)
+        city_counts: dict[str, int] = {}
+        user_alert_ids: set[str] = set()
+
+        for a in self._history:
+            if a["timestamp"] < cutoff:
+                continue
+            for area in a["areas"]:
+                city_counts[area] = city_counts.get(area, 0) + 1
+            if areas_set & set(a["areas"]):
+                user_alert_ids.add(a["id"])
+
+        alert_count = len(user_alert_ids)
+        sorted_cities = sorted(city_counts.items(), key=lambda x: x[1], reverse=True)
+        rank = None
+        for i, (city, _) in enumerate(sorted_cities):
+            if city in areas_set:
+                rank = i + 1
+                break
+
+        return {
+            "alert_count": alert_count,
+            "rank": rank,
+            "total_cities": len(city_counts),
+            "window_days": window_days,
+        }
+
     async def prune_old(self):
         async with self._lock:
             cutoff = self._pattern_cutoff()

@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 
 from .services.oref_poller import poll_loop
 from .services.alert_store import store
-from .routers import predict, locations, alerts
+from .routers import predict, locations, alerts, stats
 from .config import DEV_MODE
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -45,6 +45,7 @@ app.add_middleware(
 app.include_router(predict.router, prefix="/api")
 app.include_router(locations.router, prefix="/api")
 app.include_router(alerts.router, prefix="/api")
+app.include_router(stats.router, prefix="/api")
 
 
 if DEV_MODE:
