@@ -1,11 +1,46 @@
+import re
+import json
 import time as _time
 from datetime import datetime, timezone
 from fastapi import APIRouter, Query
 from typing import Optional
+from urllib.parse import quote
+
+import httpx
 
 from ..services.alert_store import store
 
 router = APIRouter()
+
+# In-memory cache: city name -> {alert_count, shelter_time_sec}
+_mako_cache: dict[str, dict] = {}
+
+
+async def _fetch_mako_stats(city: str) -> dict | None:
+    """Fetch pre-computed ORef stats from Mako's shelter time page (Iran2026 op)."""
+    if city in _mako_cache:
+        return _mako_cache[city]
+    try:
+        url = f"https://sheltertime.mako.co.il/share?c={quote(city)}"
+        async with httpx.AsyncClient(timeout=10, verify=False) as client:
+            resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        if resp.status_code != 200:
+            return None
+        match = re.search(r'window\.__ctx\s*=\s*(\{.*?\})\s*;?\s*</script>', resp.text, re.DOTALL)
+        if not match:
+            return None
+        ctx = json.loads(match.group(1))
+        city_data = ctx.get("initialStats", {}).get("Iran2026", {}).get(city)
+        if not city_data or len(city_data) < 2:
+            return None
+        result = {
+            "alert_count": int(city_data[1]),
+            "shelter_time_sec": int(city_data[0]) // 1000,
+        }
+        _mako_cache[city] = result
+        return result
+    except Exception:
+        return None
 
 
 @router.get("/stats")
@@ -27,4 +62,17 @@ async def get_stats(
     else:
         since_days = window_days
 
-    return store.get_stats_for_areas(areas, since_days)
+    # Use Mako/Tzofar authoritative data when querying for the current operation
+    # (since_date=2026-02-28 corresponds to שאגת הארי / Iran2026)
+    our_stats = store.get_stats_for_areas(areas, since_days)
+    if since_date == "2026-02-28" and areas:
+        mako = await _fetch_mako_stats(areas[0])
+        if mako:
+            return {
+                **mako,
+                "rank": our_stats["rank"],
+                "total_cities": our_stats["total_cities"],
+                "window_days": since_days,
+            }
+
+    return our_stats
