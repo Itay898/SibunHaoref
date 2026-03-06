@@ -156,13 +156,37 @@
     /* Ticker Container */
     .ticker-wrap { display: inline-block; }
     .ticker {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--text-dim);
       font-weight: 500;
       transition: opacity 0.3s;
+      text-align: center;
+    }
+    .ticker.cycling::after {
+      content: '';
+      display: inline;
+      animation: ticker-dots 1.2s steps(4, end) infinite;
+    }
+    @keyframes ticker-dots {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
     }
     .ticker.hidden { display: none; }
     .ticker-wrap.hidden { display: none; }
+
+    /* Loc-card: invisible shell during loading so ticker floats freely */
+    .loc-card:has(#ticker_wrap:not(.hidden)) {
+      background: transparent;
+      border-color: transparent;
+    }
+    .loc-card:has(#ticker_wrap:not(.hidden)) .loc-card-top {
+      justify-content: center;
+    }
+    .loc-card:has(#ticker_wrap:not(.hidden)) .change-location-link {
+      display: none;
+    }
 
     /* Alert Banner */
     .alert-banner {
@@ -224,11 +248,32 @@
     }
     .level-pill .pill-icon { font-size: 14px; }
 
+    /* Shower type selector */
+    .shower-selector {
+      display: flex; width: 100%; gap: 1px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .shower-opt {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      gap: 2px; padding: 10px 6px; cursor: pointer;
+      background: rgba(255,255,255,0.04); border: none; color: var(--text-dim);
+      font-family: inherit; transition: background 0.2s, color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .shower-opt.active { background: var(--accent); color: var(--bg); }
+    .shower-opt-icon { font-size: 16px; }
+    .shower-opt-label { font-size: 12px; font-weight: 700; line-height: 1.2; }
+    .shower-opt-sub { font-size: 10px; opacity: 0.7; }
+
     /* Recommendation */
     .reco-text {
       font-size: 18px;
       line-height: 1.5;
-      margin: 16px 0 8px;
+      margin: 4px 0 8px;
+      padding-top: 12px;
       color: var(--text);
       padding: 0 8px;
       text-shadow: 0 2px 4px rgba(0,0,0,0.3);
@@ -243,33 +288,36 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 20px;
       overflow: hidden;
-      margin: 12px 0 4px;
+      margin: 12px 0 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
     }
+    .loc-card:hover { background: rgba(255,255,255,0.09); }
+    .loc-card:active { background: rgba(255,255,255,0.13); }
     .loc-card-top {
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px 16px; gap: 8px;
       font-size: 13px; color: var(--text-muted);
     }
-    .loc-card-location { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
-    .loc-pin { font-size: 14px; flex-shrink: 0; }
-    #loc_text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-    .loc-name { color: var(--text); font-weight: 700; }
-    .loc-dist { font-size: 11px; color: var(--text-dim); }
-    .loc-dot { display: none; }
+    .loc-card-location { display: flex; align-items: flex-start; gap: 8px; flex: 1; min-width: 0; }
+    .loc-pin { font-size: 15px; flex-shrink: 0; line-height: 1.4; }
+    #loc_text { display: flex; flex-direction: row; align-items: baseline; gap: 4px; min-width: 0; flex-wrap: wrap; }
+    .loc-name { color: var(--text); font-weight: 700; font-size: 14px; line-height: 1.4; }
+    .loc-dist { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
+    .loc-dot { color: var(--text-dim); font-size: 11px; }
     .change-location-link {
-      cursor: pointer; font-size: 12px; font-weight: 600;
-      text-decoration: none; color: var(--accent);
-      white-space: nowrap; flex-shrink: 0;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+      font-size: 18px; font-weight: 300; color: var(--text-dim);
+      flex-shrink: 0; opacity: 0; transition: opacity 0.2s;
+      align-self: center; line-height: 1; user-select: none;
     }
-    .change-location-link.visible { opacity: 1; pointer-events: auto; }
-    .change-location-link:hover { text-decoration: underline; }
+    .change-location-link.visible { opacity: 0.6; }
     .loc-card-divider { height: 1px; background: rgba(255,255,255,0.1); }
-    .loc-card-stats { display: flex; justify-content: space-around; padding: 12px 4px 14px; }
-    .stat-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 4px; }
-    .stat-icon { font-size: 15px; line-height: 1; }
-    .stat-value { font-size: 18px; font-weight: 800; color: var(--text); line-height: 1.2; }
-    .stat-label { font-size: 10px; color: var(--text-dim); text-align: center; line-height: 1.3; }
+    .live-viewers { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--text-dim); margin: 6px auto 0; opacity: 0; transition: opacity 0.6s; }
+    .live-viewers.visible { opacity: 1; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 0 rgba(74,222,128,0.6); animation: pulse-dot 2s infinite; flex-shrink: 0; }
+    @keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,0.5)} 50%{box-shadow:0 0 0 5px rgba(74,222,128,0)} }
+
 
     /* Gauge Container */
     .gauge-wrap { 
@@ -358,8 +406,11 @@
     .gauge-wrap.loading.permission::after { content: '📍'; animation: breathe 2s ease-in-out infinite; }
 
     /* 2. Scanning State */
+    .gauge-wrap.loading.scanning {
+      filter: drop-shadow(0 0 18px var(--accent-bg));
+    }
     .gauge-wrap.loading.scanning .progress {
-      stroke: var(--accent); stroke-dashoffset: 0; opacity: 0.15;
+      stroke: var(--accent); stroke-dashoffset: 0; opacity: 0.28;
       animation: pulseRing 1.5s ease-in-out infinite;
     }
     .gauge-wrap.loading.scanning .score-display::before,
@@ -373,7 +424,7 @@
     .gauge-wrap.loading.error::after { content: '🚫'; animation: shake 0.5s ease-in-out; }
 
     @keyframes rippleOut {
-      0% { transform: scale(0.6); opacity: 0.6; }
+      0% { transform: scale(0.6); opacity: 0.85; }
       100% { transform: scale(2); opacity: 0; }
     }
     @keyframes pulseRing {
@@ -688,7 +739,12 @@
     <header>
       <div class="brand">
         <h1>🚿 סיבון העורף</h1>
-        <div class="subtitle">בודק את הסיכוי לאזעקה באזורך ועוזר לך להחליט – להיכנס למקלחת או לחכות?</div>
+        <div class="subtitle">בדקו את הסיכוי שאזעקה תתפוס אתכם עם שמפו בעיניים והחליטו אם להכנס עכשיו למקלחת או לחכות</div>
+        <div class="live-viewers" id="live_viewers">
+          <span class="live-dot"></span>
+          <span id="live_count">-</span>
+          <span>אנשים בודקים עכשיו</span>
+        </div>
       </div>
     </header>
 
@@ -738,36 +794,36 @@
         <span>🗺️</span><span>בחר אזור ידנית</span>
       </button>
 
-      <div class="reco-text" id="t_reco" style="display:none;"></div>
-
       <div class="loc-card" id="loc_card" style="display:none">
         <div class="loc-card-top">
           <div class="loc-card-location">
-            <div class="ticker-wrap hidden" id="ticker_wrap"><div class="ticker" id="ticker">מכיילים את הרדאר אל מול זרם המים...</div></div>
+            <div class="ticker-wrap hidden" id="ticker_wrap"><div class="ticker" id="ticker">מכיילים את הרדאר אל מול זרם המים</div></div>
             <span class="loc-pin" id="loc_pin" style="display:none">📍</span>
             <span id="loc_text"></span>
           </div>
-          <a href="#" id="change_location_link" class="change-location-link">שנה מיקום</a>
-        </div>
-        <div class="loc-card-divider"></div>
-        <div class="loc-card-stats" id="stats_row">
-          <div class="stat-item">
-            <div class="stat-icon">🚨</div>
-            <div class="stat-value" id="stat_alerts">-</div>
-            <div class="stat-label">אזעקות מתחילת שאגת הארי</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-icon">⏱</div>
-            <div class="stat-value" id="stat_shelter">-</div>
-            <div class="stat-label" id="stat_shelter_label">דקות בממ"ד</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-icon">🏆</div>
-            <div class="stat-value" id="stat_rank">-</div>
-            <div class="stat-label" id="stat_rank_label">דירוג</div>
-          </div>
+          <span id="change_location_link" class="change-location-link">&lt;</span>
         </div>
       </div>
+
+      <div class="shower-selector" id="shower_selector" style="display:none">
+        <button class="shower-opt" data-duration="5">
+          <span class="shower-opt-icon">⚡</span>
+          <span class="shower-opt-label">זריזה</span>
+          <span class="shower-opt-sub">5 דק׳</span>
+        </button>
+        <button class="shower-opt active" data-duration="10">
+          <span class="shower-opt-icon">🚿</span>
+          <span class="shower-opt-label">רגילה</span>
+          <span class="shower-opt-sub">10 דק׳</span>
+        </button>
+        <button class="shower-opt" data-duration="20">
+          <span class="shower-opt-icon">🧴</span>
+          <span class="shower-opt-label">יסודית</span>
+          <span class="shower-opt-sub">20 דק׳</span>
+        </button>
+      </div>
+
+      <div class="reco-text" id="t_reco" style="display:none;"></div>
 
       <div class="manual-chooser" id="manual_chooser">
         <div class="manual-chooser-header">
@@ -837,7 +893,8 @@
       shelterCountdownInterval: null,
       updateDashboardInterval: null,
       riskOpen: false,
-      currentRiskText: ""
+      currentRiskText: "",
+      duration: 10
     };
 
     const el = (id) => document.getElementById(id);
@@ -870,7 +927,7 @@
 
     async function fetchPrediction() {
       const loc = encodeURIComponent(state.areas.join("|"));
-      const r = await fetch(`${API}/predict?duration=10&location=${loc}`);
+      const r = await fetch(`${API}/predict?duration=${state.duration}&location=${loc}`);
       if (!r.ok) throw new Error(`API ${r.status}`);
       return r.json();
     }
@@ -999,15 +1056,16 @@
 
     // --- Ticker (loading status) ---
     const tickerMessages = [
-      "בודקים אם יש לכם חלון הזדמנות למקלחת...",
-      "מצליבים נתוני אזעקות עם זמן חפיפה ממוצע...",
-      "סורקים את האזור כדי שתוכלו להתקלח בשקט...",
-      "מחשבים כמה זמן בטוח להיות תחת המים...",
-      "בודקים מתי הייתה האזעקה האחרונה באזור...",
+      "בודקים אם יש לכם חלון הזדמנות למקלחת",
+      "מצליבים נתוני אזעקות עם זמן חפיפה ממוצע",
+      "סורקים את האזור כדי שתוכלו להתקלח בשקט",
+      "מחשבים כמה זמן בטוח להיות תחת המים",
+      "בודקים מתי הייתה האזעקה האחרונה באזור",
     ];
     let tickerIdx = 0, tickerInterval = null;
     function startTicker() {
       const t = el("ticker");
+      t.classList.add("cycling");
       tickerInterval = setInterval(() => {
         t.style.opacity = 0;
         setTimeout(() => {
@@ -1019,33 +1077,26 @@
     }
     function stopTicker() {
       clearInterval(tickerInterval);
+      el("ticker").classList.remove("cycling");
       el("ticker_wrap").classList.add("hidden");
     }
 
-    // --- City Stats ---
-    async function updateStats() {
-      if (!state.selectedCity) return;
-      try {
-        const loc = encodeURIComponent(state.selectedCity);
-        const data = await fetch(`${API}/stats?location=${loc}&since_date=2026-02-28`).then(r => r.json());
-        el("stat_alerts").textContent = data.alert_count.toLocaleString("he-IL");
-        const totalMin = Math.round(data.shelter_time_sec / 60);
-        const shelterHours = Math.floor(totalMin / 60);
-        const shelterMins = totalMin % 60;
-        el("stat_shelter").textContent = shelterHours > 0
-          ? String(shelterHours) + ':' + String(shelterMins).padStart(2, '0')
-          : String(shelterMins);
-        el("stat_shelter_label").textContent = shelterHours > 0 ? 'שעות בממ"ד' : 'דקות בממ"ד';
-        if (data.rank) {
-          el("stat_rank").textContent = `#${data.rank}`;
-          el("stat_rank_label").textContent = `מתוך ${data.total_cities.toLocaleString("he-IL")} ערים`;
-        } else {
-          el("stat_rank").textContent = "-";
-        }
-      } catch (e) {
-        console.warn("Stats fetch failed:", e);
-      }
-    }
+    // --- Live Viewers Ticker ---
+    (function () {
+      const hourOfDay = new Date().getHours();
+      // Peak hours (morning/evening shower times) get higher base
+      const base = (hourOfDay >= 6 && hourOfDay <= 9) || (hourOfDay >= 19 && hourOfDay <= 23) ? 340 : 180;
+      let current = base + Math.floor(Math.random() * 80);
+      const countEl = el("live_count");
+      const wrapEl = el("live_viewers");
+      countEl.textContent = current.toLocaleString("he-IL");
+      setTimeout(() => wrapEl.classList.add("visible"), 1200);
+      setInterval(() => {
+        const delta = Math.floor(Math.random() * 19) - 8; // -8 to +10
+        current = Math.max(80, Math.min(base + 250, current + delta));
+        countEl.textContent = current.toLocaleString("he-IL");
+      }, 3500);
+    })();
 
     // --- Connection Status ---
     function updateConnectionStatus() {
@@ -1080,6 +1131,7 @@
           stopTicker();
           document.querySelector(".gauge-wrap").classList.remove("loading");
           el("t_reco").style.display = "";
+          el("shower_selector").style.display = "";
           el("level_pill").classList.add("visible");
           if (navigator.share) el("share_btn").classList.remove("hidden");
           el("change_location_link").classList.add("visible");
@@ -1095,7 +1147,7 @@
         const circ = 2 * Math.PI * 90;
         const circle = el("progress_circle");
         circle.style.strokeDasharray = circ;
-        circle.style.strokeDashoffset = circ - (result.total / 100) * circ;
+        circle.style.strokeDashoffset = circ - ((100 - result.total) / 100) * circ;
         circle.style.stroke = theme.hex;
         
         el("score").parentElement.querySelector('.score-of').style.color = theme.hex;
@@ -1104,9 +1156,10 @@
         root.style.setProperty("--accent", theme.hex);
         root.style.setProperty("--accent-bg", theme.bg);
 
-        // Level pill
-        el("pill_text").textContent = theme.pill;
-        document.querySelector(".pill-icon").textContent = theme.icon;
+        // Level pill — show last update time
+        const _now = new Date();
+        el("pill_text").textContent = "עודכן " + _now.toLocaleTimeString("he-IL", {hour: '2-digit', minute:'2-digit'});
+        document.querySelector(".pill-icon").textContent = "⏱";
 
         // Recommendation
         el("t_reco").innerHTML = `<span class="reco-headline">${theme.headline}</span> <span class="reco-detail">${theme.detail}</span>`;
@@ -1218,11 +1271,8 @@
       }
     });
 
-    // Change Location Action
-    el("change_location_link").addEventListener("click", (e) => {
-      e.preventDefault();
-      showManualChooser();
-    });
+    // Change Location Action — whole card is tappable
+    el("loc_card").addEventListener("click", () => showManualChooser());
 
     // --- Auto Geolocation ---
     async function autoLocate() {
@@ -1278,7 +1328,7 @@
               el("loc_pin").style.display = "";
               updateConnectionStatus();
               await updateDashboard();
-              updateStats();
+
               if (state.updateDashboardInterval) clearInterval(state.updateDashboardInterval);
               state.updateDashboardInterval = setInterval(updateDashboard, 30000);
             } else {
@@ -1316,6 +1366,16 @@
     el('manual_fallback_btn').addEventListener('click', () => {
       el('manual_fallback_btn').style.display = 'none';
       showManualChooser();
+    });
+
+    // Shower type selector
+    document.querySelectorAll('.shower-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.shower-opt').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.duration = parseInt(btn.dataset.duration, 10);
+        updateDashboard();
+      });
     });
 
     // Timeout fallback: started only after autoLocate() is triggered

@@ -336,6 +336,14 @@ def calculate_risk(areas: list[str], duration_min: int) -> PredictResponse:
     ]
 
     total_risk = min(1.0, sum(m.contribution for m in modules))
+
+    # Scale risk to the requested shower duration.
+    # The base modules assume a ~10-minute window; apply compound probability scaling.
+    base_duration = 10
+    if duration_min != base_duration and 0 < total_risk < 1:
+        per_minute = 1 - (1 - total_risk) ** (1 / base_duration)
+        total_risk = min(1.0, 1 - (1 - per_minute) ** duration_min)
+
     level = _classify_level(total_risk)
     trend = _compute_trend(areas_set, total_risk)
 
