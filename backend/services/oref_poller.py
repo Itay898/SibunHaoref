@@ -160,7 +160,8 @@ async def _fetch_rocketalert_realtime(client: httpx.AsyncClient, seen_ra_ids: se
         for alert in payload:
             ts_str = alert.get("timeStamp", "")
             name = alert.get("name", "")
-            ra_id = f"ra_rt_{name}_{ts_str}"
+            ta_city_id = alert.get("taCityId")
+            ra_id = f"ra_{ta_city_id}_{ts_str}" if ta_city_id else f"ra_rt_{name}_{ts_str}"
             if ra_id in new_seen:
                 continue
             new_seen.add(ra_id)

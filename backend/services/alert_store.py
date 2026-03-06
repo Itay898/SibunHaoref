@@ -204,10 +204,11 @@ class AlertStore:
                     user_alert_ids.add(a["id"])
                     user_timestamps.append(a["timestamp"])
 
-        # Deduplicate: RocketAlert stores one record per city per broadcast,
-        # so the same ORef event yields multiple records with identical (or nearly
-        # identical) timestamps. Cluster within 5 minutes → count unique events.
-        EVENT_DEDUP_SEC = 300
+        # Deduplicate: the same alert may be ingested twice (historical seed +
+        # real-time poll) with slightly different IDs but the same timestamp.
+        # Use a 30-second window — tight enough to merge duplicates, wide enough
+        # to keep separate ORef broadcasts that fire minutes apart.
+        EVENT_DEDUP_SEC = 30
         unique_event_timestamps: list[float] = []
         if user_timestamps:
             user_timestamps.sort()
