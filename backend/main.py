@@ -92,7 +92,10 @@ async def serve_index():
     html = (FRONTEND_DIR / "index.html").read_text(encoding="utf-8")
     return HTMLResponse(
         content=html,
-        headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Accept-Ranges": "none",
+        },
     )
 
 
