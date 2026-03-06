@@ -44,6 +44,16 @@ async def get_locations() -> list[str]:
     return _load_areas()
 
 
+@router.get("/area")
+async def get_area_info(name: str = Query(..., description="Area name")):
+    """Return migun_time for a named area."""
+    coords = _load_coords()
+    c = coords.get(name)
+    if c:
+        return {"name": name, "migun_time": c.get("migun_time", 90)}
+    return {"name": name, "migun_time": 90}
+
+
 @router.get("/locate")
 async def locate_nearest(
     lat: float = Query(..., description="User latitude"),
