@@ -7,7 +7,7 @@ from pathlib import Path
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 
 from .services.oref_poller import poll_loop
 from .services.alert_store import store
@@ -88,7 +88,8 @@ async def health():
 # --- Serve frontend ---
 @app.get("/")
 async def serve_index():
-    return FileResponse(FRONTEND_DIR / "index.html")
+    content = (FRONTEND_DIR / "index.html").read_text(encoding="utf-8")
+    return HTMLResponse(content=content, status_code=200)
 
 
 # Static assets (og-image.png, etc.)
