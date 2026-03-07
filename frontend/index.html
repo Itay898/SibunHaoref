@@ -133,31 +133,20 @@
       top: 0;
       z-index: 50;
       text-align: center;
-      padding: 12px 16px;
-      background: rgba(11, 17, 33, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      padding: 10px 16px;
+      background: rgba(11, 17, 33, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(255,255,255,0.06);
-      animation: fadeInDown 0.6s ease-out;
     }
-    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
 
     .brand { display: inline-block; }
     .brand h1 {
-      font-size: 20px;
-      font-weight: 900;
+      font-size: 17px;
+      font-weight: 800;
       color: var(--text);
-      letter-spacing: -0.5px;
-      line-height: 1.2;
-    }
-    .brand .subtitle {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-weight: 400;
-      margin-top: 4px;
-      line-height: 1.4;
-      max-width: 320px;
-      margin-left: auto; margin-right: auto;
+      letter-spacing: -0.3px;
+      line-height: 1;
     }
 
     /* Ticker Container */
@@ -580,18 +569,7 @@
     .footer-credit a:hover { opacity: 0.8; text-decoration: underline; }
     .footer-disclaimer { font-size: 10px; color: var(--text-dim); opacity: 0.5; line-height: 1.5; max-width: 380px; margin: 0 auto; }
 
-    /* Welcome Screen */
-    .welcome-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      padding: 16px 0;
-      width: 100%;
-    }
-    .welcome-title { font-size: 17px; font-weight: 700; color: var(--text); }
-    .welcome-sub { font-size: 13px; color: var(--text-dim); text-align: center; line-height: 1.5; max-width: 280px; }
-    .welcome-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 280px; }
+    /* Manual Fallback Button */
     .welcome-btn {
       padding: 14px 20px;
       border-radius: 16px;
@@ -607,7 +585,6 @@
       transition: transform 0.15s, opacity 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
-    .welcome-btn.primary { background: var(--accent); color: var(--bg); }
     .welcome-btn.secondary { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid rgba(255,255,255,0.1); }
     .welcome-btn:active { transform: scale(0.96); opacity: 0.85; }
 
@@ -723,7 +700,6 @@
     <header>
       <div class="brand">
         <h1>🚿 סיבון העורף</h1>
-        <div class="subtitle">בדקו את הסיכוי שאזעקה תתפוס אתכם עם שמפו בעיניים והחליטו אם להכנס עכשיו למקלחת או לחכות</div>
       </div>
     </header>
 
@@ -735,22 +711,7 @@
 
     <main class="card" id="main_card">
 
-      <div id="welcome_screen" class="welcome-screen">
-        <div class="welcome-title">איך לאתר את מיקומך?</div>
-        <div class="welcome-sub">נצטרך לדעת את האזור שלך כדי לחשב את הסיכוי לאזעקה</div>
-        <div class="welcome-btns">
-          <button class="welcome-btn primary" id="welcome_auto_btn">
-            <span>📍</span>
-            <span>אתר מיקום אוטומטית</span>
-          </button>
-          <button class="welcome-btn secondary" id="welcome_manual_btn">
-            <span>🗺️</span>
-            <span>בחר אזור ידנית</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="gauge-wrap loading permission" style="display:none">
+      <div class="gauge-wrap loading scanning">
         <svg class="gauge" viewBox="0 0 200 200">
           <circle class="track" cx="100" cy="100" r="90"></circle>
           <circle class="progress" id="progress_circle" cx="100" cy="100" r="90"></circle>
@@ -794,7 +755,7 @@
         </button>
       </div>
 
-      <div class="loc-card" id="loc_card" style="display:none">
+      <div class="loc-card" id="loc_card"
         <div class="loc-card-top">
           <div class="loc-card-location">
             <div class="ticker-wrap hidden" id="ticker_wrap"><div class="ticker" id="ticker">מכיילים את הרדאר אל מול זרם המים</div></div>
@@ -1466,45 +1427,12 @@
     window.addEventListener("offline", () => { state.lastFetchOk = false; updateConnectionStatus(); });
     window.addEventListener("online", () => { if (state.locationReady) updateDashboard(); });
 
-    // --- Welcome Screen ---
-    function dismissWelcome() {
-      el('welcome_screen').style.display = 'none';
-      document.querySelector('.gauge-wrap').style.display = '';
-      el('loc_card').style.display = '';
-    }
-
-    el('welcome_auto_btn').addEventListener('click', () => {
-      dismissWelcome();
-      el('ticker_wrap').classList.remove('hidden');
-      startTicker();
-      startGeoTimeout();
-      autoLocate();
-    });
-
-    el('welcome_manual_btn').addEventListener('click', () => {
-      dismissWelcome();
-      document.querySelector('.gauge-wrap').className = 'gauge-wrap loading scanning';
-      showManualChooser();
-    });
-
     // --- Init ---
     requestNotificationPermission();
-
-    // Zero-Click UX: if geolocation permission already granted, skip welcome screen
-    (async () => {
-      try {
-        if (navigator.permissions && navigator.geolocation) {
-          const perm = await navigator.permissions.query({ name: 'geolocation' });
-          if (perm.state === 'granted') {
-            dismissWelcome();
-            el('ticker_wrap').classList.remove('hidden');
-            startTicker();
-            startGeoTimeout();
-            autoLocate();
-          }
-        }
-      } catch(e) {}
-    })();
+    el('ticker_wrap').classList.remove('hidden');
+    startTicker();
+    startGeoTimeout();
+    autoLocate();
   </script>
 </body>
 </html>
