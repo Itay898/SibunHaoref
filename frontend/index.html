@@ -322,11 +322,11 @@
 
 
     /* Gauge Container */
-    .gauge-wrap { 
-      position: relative; 
-      width: 180px; 
-      height: 180px; 
-      margin: 20px auto; 
+    .gauge-wrap {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 24px auto;
       transition: filter 0.6s ease;
       filter: drop-shadow(0 0 30px var(--accent-bg));
     }
@@ -353,8 +353,8 @@
       gap: 2px; 
       direction: ltr; 
     }
-    .score-num { 
-      font-size: 52px; 
+    .score-num {
+      font-size: 58px;
       font-weight: 900; 
       line-height: 1; 
       transition: color 0.5s; 
@@ -592,7 +592,6 @@
       flex-direction: column;
       gap: 12px;
     }
-    .last-update { font-size: 11px; color: var(--text-dim); font-weight: 400; opacity: 0.6; }
     .footer-credit { font-size: 13px; color: var(--text-muted); font-weight: 500; }
     .footer-credit a { color: var(--accent); text-decoration: none; font-weight: 700; transition: opacity 0.2s; padding: 2px 4px; }
     .footer-credit a:hover { opacity: 0.8; text-decoration: underline; }
@@ -717,19 +716,19 @@
     @media (max-width: 360px) {
       .container { padding: 16px 12px; }
       .card { padding: 24px 16px; }
-      .gauge-wrap { width: 150px; height: 150px; }
-      .score-num { font-size: 42px; }
+      .gauge-wrap { width: 170px; height: 170px; }
+      .score-num { font-size: 48px; }
       .reco-text { font-size: 15px; }
     }
     @media (min-height: 700px) {
-      .gauge-wrap { width: 200px; height: 200px; margin: 28px auto; }
-      .score-num { font-size: 56px; }
+      .gauge-wrap { width: 240px; height: 240px; margin: 32px auto; }
+      .score-num { font-size: 64px; }
       .reco-text { font-size: 20px; margin: 20px 0 8px; }
     }
     @media (max-height: 600px) {
       .card { padding: 20px 20px; }
-      .gauge-wrap { width: 140px; height: 140px; margin: 12px auto; }
-      .score-num { font-size: 38px; }
+      .gauge-wrap { width: 160px; height: 160px; margin: 14px auto; }
+      .score-num { font-size: 44px; }
       .reco-text { font-size: 15px; margin: 10px 0 6px; }
       header { margin-bottom: 12px; }
     }
@@ -796,17 +795,6 @@
         <span>🗺️</span><span>בחר אזור ידנית</span>
       </button>
 
-      <div class="loc-card" id="loc_card" style="display:none">
-        <div class="loc-card-top">
-          <div class="loc-card-location">
-            <div class="ticker-wrap hidden" id="ticker_wrap"><div class="ticker" id="ticker">מכיילים את הרדאר אל מול זרם המים</div></div>
-            <span class="loc-pin" id="loc_pin" style="display:none">📍</span>
-            <span id="loc_text"></span>
-          </div>
-          <span id="change_location_link" class="change-location-link">&lt;</span>
-        </div>
-      </div>
-
       <div class="shower-selector" id="shower_selector" style="display:none">
         <button class="shower-opt" data-duration="5">
           <span class="shower-opt-icon">⚡</span>
@@ -826,6 +814,17 @@
       </div>
 
       <div class="reco-text" id="t_reco" style="display:none;"></div>
+
+      <div class="loc-card" id="loc_card" style="display:none">
+        <div class="loc-card-top">
+          <div class="loc-card-location">
+            <div class="ticker-wrap hidden" id="ticker_wrap"><div class="ticker" id="ticker">מכיילים את הרדאר אל מול זרם המים</div></div>
+            <span class="loc-pin" id="loc_pin" style="display:none">📍</span>
+            <span id="loc_text"></span>
+          </div>
+          <span id="change_location_link" class="change-location-link">&lt;</span>
+        </div>
+      </div>
 
       <div class="manual-chooser" id="manual_chooser">
         <div class="manual-chooser-header">
@@ -857,7 +856,6 @@
 
 
     <footer class="site-footer">
-      <div class="last-update" id="last_update"></div>
       <div class="footer-credit">
         נוצר באהבה (ובחרדה קלה) ע״י <a href="https://www.linkedin.com/in/itay-amar/" target="_blank" rel="noopener noreferrer">איתי עמר</a>
       </div>
@@ -1175,9 +1173,6 @@
         state.lastFetchOk = false;
       }
       updateConnectionStatus();
-      if (state.lastUpdateTime) {
-        el("last_update").textContent = `עדכון אחרון: ${state.lastUpdateTime.toLocaleTimeString("he-IL", {hour: '2-digit', minute:'2-digit'})}`;
-      }
     }
 
     // --- Risk Breakdown ---
