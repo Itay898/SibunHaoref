@@ -129,32 +129,39 @@
 
     /* Header */
     header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
       text-align: center;
-      margin-bottom: 24px;
+      padding: 12px 16px;
+      background: rgba(11, 17, 33, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       animation: fadeInDown 0.6s ease-out;
     }
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
-    
+
     .brand { display: inline-block; }
-    .brand h1 { 
-      font-size: 28px; 
-      font-weight: 900; 
-      color: var(--text); 
-      letter-spacing: -0.5px; 
+    .brand h1 {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
       line-height: 1.2;
     }
-    .brand .subtitle { 
-      font-size: 14px; 
-      color: var(--text-muted); 
-      font-weight: 400; 
-      margin-top: 8px; 
-      line-height: 1.4; 
-      max-width: 290px;
+    .brand .subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-top: 4px;
+      line-height: 1.4;
+      max-width: 320px;
       margin-left: auto; margin-right: auto;
     }
 
     /* Ticker Container */
-    .ticker-wrap { display: block; text-align: center; }
+    .ticker-wrap { display: block; text-align: center; width: 100%; }
     .ticker {
       font-size: 14px;
       color: var(--text-dim);
@@ -183,6 +190,9 @@
     }
     .loc-card:has(#ticker_wrap:not(.hidden)) .loc-card-top {
       justify-content: center;
+    }
+    .loc-card:has(#ticker_wrap:not(.hidden)) .loc-card-location {
+      justify-content: center; width: 100%;
     }
     .loc-card:has(#ticker_wrap:not(.hidden)) .change-location-link,
     .loc-card:has(#ticker_wrap:not(.hidden)) #loc_text,
@@ -222,31 +232,6 @@
       flex-direction: column;
       align-items: center;
     }
-
-    /* Level Pill (Status) */
-    .level-pill {
-      display: none;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 16px;
-      border-radius: 100px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--accent);
-      background: var(--accent-bg);
-      border: 1px solid var(--accent);
-      margin: -42px auto 16px;
-      z-index: 2;
-      transition: background 0.5s, border-color 0.5s, color 0.5s, opacity 0.6s, transform 0.6s;
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    .level-pill.visible { 
-      display: inline-flex; 
-      opacity: 1; 
-      transform: translateY(0); 
-    }
-    .level-pill .pill-icon { font-size: 14px; }
 
     /* Shower type selector */
     .shower-selector {
@@ -313,7 +298,7 @@
     }
     .change-location-link.visible { opacity: 0.6; }
     .loc-card-divider { height: 1px; background: rgba(255,255,255,0.1); }
-    .live-viewers { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--text-dim); margin: 6px auto 0; opacity: 0; transition: opacity 0.6s; }
+    .live-viewers { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--text-dim); margin: 6px auto 16px; opacity: 0; transition: opacity 0.6s; }
     .live-viewers.visible { opacity: 1; }
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 0 rgba(74,222,128,0.6); animation: pulse-dot 2s infinite; flex-shrink: 0; }
     @keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,0.5)} 50%{box-shadow:0 0 0 5px rgba(74,222,128,0)} }
@@ -765,11 +750,6 @@
         </div>
       </div>
 
-      <div class="level-pill" id="level_pill">
-        <span class="pill-icon">⚠</span>
-        <span id="pill_text">רמה</span>
-      </div>
-
       <div class="gauge-wrap loading permission" style="display:none">
         <svg class="gauge" viewBox="0 0 200 200">
           <circle class="track" cx="100" cy="100" r="90"></circle>
@@ -861,6 +841,7 @@
       <div class="footer-disclaimer" style="opacity:0.6;">
         נתונים: <a href="https://www.oref.org.il/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">פיקוד העורף</a> &middot; <a href="https://rocketalert.live/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">RocketAlert</a> &middot; <a href="https://www.tzevaadom.co.il/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">צבע אדום</a>
       </div>
+      <div class="footer-disclaimer" id="footer_update_time" style="opacity:0.5;"></div>
       <div class="footer-disclaimer">
         * דיסקליימר: האפליקציה מבוססת על סטטיסטיקה ולא חוזה אזעקות. אל תסתמכו עליה כתחליף לפיקוד העורף – תמיד היכנסו למרחב מוגן כשיש אזעקה, גם אם אתם באמצע שמפו.
       </div>
@@ -1089,7 +1070,6 @@
       const countEl = el("live_count");
       const wrapEl = el("live_viewers");
       countEl.textContent = current.toLocaleString("he-IL");
-      setTimeout(() => wrapEl.classList.add("visible"), 1200);
       setInterval(() => {
         const delta = Math.floor(Math.random() * 19) - 8; // -8 to +10
         current = Math.max(80, Math.min(base + 250, current + delta));
@@ -1131,7 +1111,7 @@
           document.querySelector(".gauge-wrap").classList.remove("loading");
           el("t_reco").style.display = "";
           el("shower_selector").style.display = "";
-          el("level_pill").classList.add("visible");
+          el("live_viewers").classList.add("visible");
           if (navigator.share) el("share_btn").classList.remove("hidden");
           el("change_location_link").classList.add("visible");
         }
@@ -1155,10 +1135,9 @@
         root.style.setProperty("--accent", theme.hex);
         root.style.setProperty("--accent-bg", theme.bg);
 
-        // Level pill — show last update time
+        // Footer update time
         const _now = new Date();
-        el("pill_text").textContent = "עודכן " + _now.toLocaleTimeString("he-IL", {hour: '2-digit', minute:'2-digit'});
-        document.querySelector(".pill-icon").textContent = "⏱";
+        el("footer_update_time").textContent = "עודכן " + _now.toLocaleTimeString("he-IL", {hour: '2-digit', minute:'2-digit'});
 
         // Recommendation
         el("t_reco").innerHTML = `<span class="reco-headline">${theme.headline}</span> <span class="reco-detail">${theme.detail}</span>`;

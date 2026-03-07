@@ -188,6 +188,59 @@ async def _fetch_rocketalert_realtime(client: httpx.AsyncClient, seen_ra_ids: se
         return seen_ra_ids
 
 
+async def _seed_from_alerts_history_oref(client: httpx.AsyncClient) -> int:
+    """Seed from alerts-history.oref.org.il — per-city records, no auth required.
+    Returns number of new records added."""
+    url = "https://alerts-history.oref.org.il/Shared/Ajax/GetAlarmsHistory.aspx?lang=he"
+    headers = {
+        **OREF_HEADERS,
+        "Referer": "https://alerts-history.oref.org.il/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    }
+    try:
+        resp = await client.get(url, headers=headers, timeout=20)
+        if resp.status_code != 200:
+            logger.warning(f"alerts-history.oref.org.il returned {resp.status_code}")
+            return 0
+        records = _parse_oref_alerts(resp.text)
+        if not records:
+            return 0
+        added = 0
+        for rec in records:
+            city = rec.get("data", "")
+            alert_date = rec.get("alertDate") or rec.get("date", "")
+            cat = rec.get("category", 1)
+            matrix_id = rec.get("matrix_id") or rec.get("rid", "")
+            if not city:
+                continue
+            # Parse timestamp
+            ts = time.time()
+            if alert_date:
+                try:
+                    from datetime import datetime, timezone, timedelta
+                    israel_tz = timezone(timedelta(hours=2))
+                    if "T" in str(alert_date):
+                        dt = datetime.fromisoformat(str(alert_date).replace("Z", "+00:00"))
+                    else:
+                        dt = datetime.strptime(str(alert_date), "%d.%m.%Y %H:%M:%S").replace(tzinfo=israel_tz)
+                    ts = dt.timestamp()
+                except (ValueError, TypeError):
+                    pass
+            transformed = {
+                "id": f"oref_hist_{matrix_id}_{city}",
+                "cat": cat,
+                "title": rec.get("category_desc", ""),
+                "data": [city],
+            }
+            await store.add_alert(transformed, ts)
+            added += 1
+        logger.info(f"alerts-history.oref.org.il: added {added} records")
+        return added
+    except Exception as e:
+        logger.warning(f"alerts-history.oref.org.il seed failed: {e}")
+        return 0
+
+
 async def _seed_history(client: httpx.AsyncClient) -> set[str]:
     """Fetch alert history on startup. Returns seen RT IDs."""
     # Try rocketalert first (deep history + real-time for recent gap)
