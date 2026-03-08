@@ -754,7 +754,7 @@
         </button>
       </div>
 
-      <div class="loc-card" id="loc_card">
+      <div class="loc-card" id="loc_card" style="display:none">
         <div class="loc-card-top">
           <div class="loc-card-location">
             <div class="ticker-wrap hidden" id="ticker_wrap"><div class="ticker" id="ticker">מכיילים את הרדאר אל מול זרם המים</div></div>
@@ -1259,6 +1259,7 @@
             state.areas = data.areas.slice(0, 5);
             state.selectedCity = data.nearest.name;
             state.locationReady = true;
+            el("loc_card").style.display = "";
             if (data.migun_time != null) state.etaSec = data.migun_time;
             const n = data.nearest;
             el("loc_text").innerHTML = `<span class="loc-name">${n.name}</span><span class="loc-dot">·</span><span class="loc-dist">${formatMigunTime(state.etaSec)} להגיע למרחב מוגן</span>`;
@@ -1370,6 +1371,8 @@
         state.areas = [name];
         state.selectedCity = name;
         state.locationReady = true;
+        el("loc_card").style.display = "";
+        el("geo_message").style.display = "none";
         hideManualChooser();
         el('manual_fallback_btn').style.display = 'none';
 
