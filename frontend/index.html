@@ -1341,6 +1341,7 @@
 
     // Share Action
     el("share_btn").addEventListener("click", async () => {
+      gtag("event", "share", { method: "web_share_api", content_type: "score", item_id: currentScore });
       if (navigator.share) {
         try {
           await navigator.share({
@@ -1531,7 +1532,6 @@
         el('loc_pin').style.display = "";
         el('change_location_link').classList.add('visible');
         await updateDashboard();
-        updateStats();
         if (state.updateDashboardInterval) clearInterval(state.updateDashboardInterval);
         state.updateDashboardInterval = setInterval(updateDashboard, 30000);
       }
