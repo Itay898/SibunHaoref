@@ -109,7 +109,6 @@
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
-      direction: rtl;
       text-align: right;
       -webkit-font-smoothing: antialiased;
       -webkit-tap-highlight-color: transparent;
@@ -130,10 +129,13 @@
 
     /* Header */
     header {
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 10px 16px;
+      gap: 12px;
     }
-    .brand { display: inline-block; }
+    .brand { flex: 1; text-align: center; min-width: 0; }
     .brand h1 {
       font-size: 17px;
       font-weight: 800;
@@ -141,6 +143,21 @@
       letter-spacing: -0.3px;
       line-height: 1;
     }
+    .lang-toggle {
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .lang-toggle:active { transform: scale(0.95); opacity: 0.8; }
 
     /* Geo Message (above gauge) */
     .geo-message {
@@ -492,7 +509,7 @@
       width: 100%; max-width: 420px; padding: 12px 16px;
       border-radius: 12px; background: rgba(0,0,0,0.35);
       color: var(--text); border: 1px solid rgba(255,255,255,0.12);
-      font-family: inherit; font-size: 16px; direction: rtl;
+      font-family: inherit; font-size: 16px; direction: inherit;
       outline: none;
       -webkit-appearance: none;
     }
@@ -699,13 +716,14 @@
 
   <div class="container">
     <header>
+      <button class="lang-toggle" id="lang_toggle">EN</button>
       <div class="brand">
-        <h1>🚿 סיבון העורף <span style="font-weight:400">· אפשר להתקלח? בדקו וגלו!</span></h1>
+        <h1 id="brand_title">🚿 סיבון העורף <span style="font-weight:400">· אפשר להתקלח? בדקו וגלו!</span></h1>
       </div>
     </header>
 
     <div class="alert-banner" id="alert_banner">
-      <h3>צבע אדום באזורך!</h3>
+      <h3 id="alert_title">צבע אדום באזורך!</h3>
       <p id="alert_banner_text">כניסה למרחב מוגן עכשיו!</p>
       <div class="shelter-countdown" id="shelter_countdown"></div>
     </div>
@@ -724,12 +742,12 @@
             <span class="score-num" id="score">-</span>
             <span class="score-of">%</span>
           </div>
-          <div class="score-label">סיכוי לאזעקה<br>בזמן המקלחת</div>
+          <div class="score-label" id="score_label">סיכוי לאזעקה<br>בזמן המקלחת</div>
         </div>
       </div>
 
       <button id="manual_fallback_btn" class="welcome-btn secondary" style="display:none; margin-top: 4px; max-width: 240px; padding: 12px 20px; font-size: 14px;">
-        <span>🗺️</span><span>בחר אזור ידנית</span>
+        <span>🗺️</span><span id="manual_fallback_label">בחר אזור ידנית</span>
       </button>
 
       <div class="reco-text" id="t_reco" style="display:none;"></div>
@@ -737,20 +755,20 @@
       <div class="live-viewers" id="live_viewers">
         <span class="live-dot"></span>
         <span id="live_count">-</span>
-        <span>אנשים בודקים עכשיו</span>
+        <span id="live_label">אנשים בודקים עכשיו</span>
       </div>
 
       <div class="shower-selector" id="shower_selector" style="display:none">
         <button class="shower-opt" data-duration="5">
-          <span class="shower-opt-label">מטכ״לית</span>
+          <span class="shower-opt-label" id="dur_label_5">מטכ״לית</span>
           <span class="shower-opt-sub">5 דק׳</span>
         </button>
         <button class="shower-opt active" data-duration="10">
-          <span class="shower-opt-label">רגילה</span>
+          <span class="shower-opt-label" id="dur_label_10">רגילה</span>
           <span class="shower-opt-sub">10 דק׳</span>
         </button>
         <button class="shower-opt" data-duration="20">
-          <span class="shower-opt-label">Everything Shower</span>
+          <span class="shower-opt-label" id="dur_label_20">Everything Shower</span>
           <span class="shower-opt-sub">20 דק׳</span>
         </button>
       </div>
@@ -758,7 +776,7 @@
       <div class="loc-card" id="loc_card" style="display:none">
         <div class="loc-card-top">
           <div class="loc-card-location">
-            <div class="ticker-wrap hidden" id="ticker_wrap"><div class="ticker" id="ticker">מכיילים את הרדאר אל מול זרם המים</div></div>
+            <div class="ticker-wrap hidden" id="ticker_wrap"><div class="ticker" id="ticker"><span id="ticker_text">מכיילים את הרדאר אל מול זרם המים</span></div></div>
             <span class="loc-pin" id="loc_pin" style="display:none">📍</span>
             <span id="loc_text"></span>
           </div>
@@ -768,7 +786,7 @@
 
       <div class="manual-chooser" id="manual_chooser">
         <div class="manual-chooser-header">
-          <span class="manual-chooser-title">בחר אזור</span>
+          <span class="manual-chooser-title" id="chooser_title">בחר אזור</span>
           <button class="manual-close-btn" id="manual_cancel_btn">✕</button>
         </div>
         <input type="text" id="manual_search" placeholder="חיפוש אזור..." autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" />
@@ -776,7 +794,7 @@
       </div>
 
       <button class="share-btn hidden" id="share_btn">
-        <span>שתפו עם חברים שצריכים מקלחת</span>
+        <span id="share_label">שתפו עם חברים שצריכים מקלחת</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
       </button>
 
@@ -786,7 +804,7 @@
         <div class="risk-header" id="risk_toggle">
           <div class="risk-header-left">
             <span class="chevron" id="risk_chevron">&#9654;</span>
-            <span>איך חישבנו את הסיכוי?</span>
+            <span id="risk_toggle_text">איך חישבנו את הסיכוי?</span>
           </div>
           <span class="trend stable" id="risk_trend">&#9472; יציב</span>
         </div>
@@ -797,17 +815,17 @@
 
     <footer class="site-footer">
       <div class="footer-credit">
-        נוצר באהבה (ובחרדה קלה) ע״י <a href="https://www.linkedin.com/in/itay-amar/" target="_blank" rel="noopener noreferrer">איתי עמר</a>
+        <span id="footer_credit_text">נוצר באהבה (ובחרדה קלה) ע״י</span> <a href="https://www.linkedin.com/in/itay-amar/" target="_blank" rel="noopener noreferrer" id="footer_author_link">איתי עמר</a>
       </div>
       <div class="footer-disclaimer" style="opacity:0.6;">
-        נתונים: <a href="https://www.oref.org.il/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">פיקוד העורף</a> &middot; <a href="https://rocketalert.live/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">RocketAlert</a> &middot; <a href="https://www.tzevaadom.co.il/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">צבע אדום</a>
+        <span id="footer_data_label">נתונים:</span> <a href="https://www.oref.org.il/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;" id="footer_oref_link">פיקוד העורף</a> &middot; <a href="https://rocketalert.live/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">RocketAlert</a> &middot; <a href="https://www.tzevaadom.co.il/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;" id="footer_tzeva_link">צבע אדום</a>
       </div>
       <div class="footer-disclaimer" id="footer_update_time" style="opacity:0.5;"></div>
       <div class="footer-disclaimer">
-        * דיסקליימר: האפליקציה מבוססת על סטטיסטיקה ולא חוזה אזעקות. אל תסתמכו עליה כתחליף לפיקוד העורף – תמיד היכנסו למרחב מוגן כשיש אזעקה, גם אם אתם באמצע שמפו.
+        <span id="footer_disclaimer_text">* דיסקליימר: האפליקציה מבוססת על סטטיסטיקה ולא חוזה אזעקות. אל תסתמכו עליה כתחליף לפיקוד העורף – תמיד היכנסו למרחב מוגן כשיש אזעקה, גם אם אתם באמצע שמפו.</span>
       </div>
       <div class="footer-credit" style="margin-top: 4px;">
-        💩 מעדיפים אסלה? <a href="https://canipoop.com" target="_blank" rel="noopener noreferrer">Can I Poop?</a>
+        <span id="footer_poop_text">💩 מעדיפים אסלה?</span> <a href="https://canipoop.com" target="_blank" rel="noopener noreferrer" id="footer_poop_link">Can I Poop?</a>
       </div>
     </footer>
   </div>
@@ -843,6 +861,118 @@
 
     const el = (id) => document.getElementById(id);
     const root = document.documentElement;
+
+    // --- i18n ---
+    state.lang = localStorage.getItem("shower_lang") || "he";
+
+    const i18n = {
+      he: {
+        brand: '🚿 סיבון העורף <span style="font-weight:400">· אפשר להתקלח? בדקו וגלו!</span>',
+        toggleLabel: "EN",
+        liveLabel: "אנשים בודקים עכשיו",
+        alertTitle: "צבע אדום באזורך!",
+        alertText: "כניסה למרחב מוגן עכשיו!",
+        scanning: "מכיילים את הרדאר אל מול זרם המים",
+        scoreLabel: "סיכוי לאזעקה<br>בזמן המקלחת",
+        manualFallback: "בחר אזור ידנית",
+        dur5: "מטכ״לית", dur10: "רגילה", dur20: "Everything Shower",
+        shareLabel: "שתפו עם חברים שצריכים מקלחת",
+        shareText: (score, riskText) => `🚿 הסיכוי לאזעקה באמצע המקלחת: ${score}% – ${riskText}\nhttps://sibunhaoref.com`,
+        riskToggle: "איך חישבנו את הסיכוי?",
+        chooserTitle: "בחר אזור",
+        searchPlaceholder: "חיפוש אזור...",
+        footerCredit: "נוצר באהבה (ובחרדה קלה) ע״י",
+        footerAuthor: "איתי עמר",
+        footerDataLabel: "נתונים:",
+        footerOrefLink: "פיקוד העורף",
+        footerTzevaLink: "צבע אדום",
+        footerDisclaimer: "* דיסקליימר: האפליקציה מבוססת על סטטיסטיקה ולא חוזה אזעקות. אל תסתמכו עליה כתחליף לפיקוד העורף – תמיד היכנסו למרחב מוגן כשיש אזעקה, גם אם אתם באמצע שמפו.",
+        footerPoopText: "💩 מעדיפים אסלה?",
+        footerPoopLink: "Can I Poop?",
+        updatedAt: (time) => "עודכן " + time,
+        trendStable: "&#9472; יציב", trendRising: "⚠ מגמת עלייה", trendFalling: "&#9660; מגמת ירידה",
+        themes: [
+          { max: 20, headline: "אור ירוק למקלחת. 🛁", detail: "הסיכוי לאזעקה נמוך – אפשר להתפנק ברוגע, כולל קונדישנר.", pill: "מקלחת בטוחה" },
+          { max: 40, headline: "אפשר להיכנס למקלחת. 🚿", detail: "אבל בלי קונצרטים – דלת פתוחה ואוזן כרויה.", pill: "אפשר בזהירות" },
+          { max: 60, headline: "מקלחת קצרה בלבד. ⏱️", detail: "כניסה-יציאה מהירה, מגבת וביגוד בהישג יד.", pill: "מקלחת זריזה" },
+          { max: 80, headline: "עדיף לדחות את המקלחת. 🛑", detail: "להישאר לבושים וקרוב לממ״ד.", pill: "לדחות מקלחת" },
+          { max: 100, headline: "לא להיכנס למקלחת! 🚨", detail: "להישאר ליד מרחב מוגן ולהיות מוכנים.", pill: "לא להתקלח!" },
+        ]
+      },
+      en: {
+        brand: '🚿 Shower Radar <span style="font-weight:400">· Is it safe to shower?</span>',
+        toggleLabel: "עב",
+        liveLabel: "people checking now",
+        alertTitle: "Red Alert in your area!",
+        alertText: "Get to shelter now!",
+        scanning: "Calibrating radar against the water stream",
+        scoreLabel: "Chance of alert<br>during your shower",
+        manualFallback: "Choose area manually",
+        dur5: "Quick Rinse", dur10: "Regular", dur20: "Everything Shower",
+        shareLabel: "Share with friends who need a shower",
+        shareText: (score, riskText) => `🚿 My chance of a rocket alert mid-shower: ${score}%\nhttps://sibunhaoref.com`,
+        riskToggle: "How did we calculate this?",
+        chooserTitle: "Choose area",
+        searchPlaceholder: "Search area...",
+        footerCredit: "Built with love (and mild anxiety) by",
+        footerAuthor: "Itay Amar",
+        footerDataLabel: "Data:",
+        footerOrefLink: "IDF Home Front Command",
+        footerTzevaLink: "Tzeva Adom",
+        footerDisclaimer: "* Disclaimer: This app is based on statistics and does not predict alerts. Always get to shelter when there's an alert, even if you're mid-shampoo.",
+        footerPoopText: "💩 Prefer the toilet?",
+        footerPoopLink: "Can I Poop?",
+        updatedAt: (time) => "Updated " + time,
+        trendStable: "&#9472; Stable", trendRising: "⚠ Rising trend", trendFalling: "&#9660; Falling trend",
+        themes: [
+          { max: 20, headline: "Green light for a shower 🛁", detail: "Alert chance is low – go ahead and pamper yourself, conditioner included.", pill: "Safe to shower" },
+          { max: 40, headline: "You can hop in the shower 🚿", detail: "But skip the concert – door open and ears alert.", pill: "Proceed with caution" },
+          { max: 60, headline: "Quick shower only ⏱️", detail: "In and out fast, towel and clothes within reach.", pill: "Quick shower" },
+          { max: 80, headline: "Better to skip the shower 🛑", detail: "Stay dressed and close to shelter.", pill: "Skip the shower" },
+          { max: 100, headline: "Do NOT get in the shower! 🚨", detail: "Stay near shelter and be ready.", pill: "Don't shower!" },
+        ]
+      }
+    };
+
+    function applyLang() {
+      const t = i18n[state.lang];
+      const isHe = state.lang === "he";
+      document.documentElement.lang = isHe ? "he" : "en";
+      document.documentElement.dir = isHe ? "rtl" : "ltr";
+
+      el("lang_toggle").textContent = t.toggleLabel;
+      el("brand_title").innerHTML = t.brand;
+      el("live_label").textContent = t.liveLabel;
+      el("alert_title").textContent = t.alertTitle;
+      el("alert_banner_text").textContent = t.alertText;
+      el("ticker_text").textContent = t.scanning;
+      el("score_label").innerHTML = t.scoreLabel;
+      el("manual_fallback_label").textContent = t.manualFallback;
+      el("dur_label_5").textContent = t.dur5;
+      el("dur_label_10").textContent = t.dur10;
+      el("dur_label_20").textContent = t.dur20;
+      el("share_label").textContent = t.shareLabel;
+      el("risk_toggle_text").textContent = t.riskToggle;
+      el("chooser_title").textContent = t.chooserTitle;
+      el("manual_search").placeholder = t.searchPlaceholder;
+      el("footer_credit_text").textContent = t.footerCredit;
+      el("footer_author_link").textContent = t.footerAuthor;
+      el("footer_data_label").textContent = t.footerDataLabel;
+      el("footer_oref_link").textContent = t.footerOrefLink;
+      el("footer_tzeva_link").textContent = t.footerTzevaLink;
+      el("footer_disclaimer_text").textContent = t.footerDisclaimer;
+      el("footer_poop_text").textContent = t.footerPoopText;
+      el("footer_poop_link").textContent = t.footerPoopLink;
+    }
+
+    el("lang_toggle").addEventListener("click", () => {
+      state.lang = state.lang === "he" ? "en" : "he";
+      localStorage.setItem("shower_lang", state.lang);
+      applyLang();
+      if (state.locationReady) updateDashboard();
+    });
+
+    applyLang();
 
     // --- Notifications ---
     async function requestNotificationPermission() {
@@ -894,13 +1024,14 @@
       const total = clamp(Math.round(data.risk * 100), 0, 100);
       const isActiveNow = data.minutesSinceLastAlert !== null && data.minutesSinceLastAlert < 1.5;
       const lastAlertTimestamp = data.lastAlertTimestamp || null;
+      const langKey = state.lang === "en" ? "en" : "he";
       const factors = (data.reasonings || [])
         .sort((a, b) => b.contribution - a.contribution)
         .map(r => ({
-          label: r.label.he || r.label.en,
+          label: r.label[langKey] || r.label.he || r.label.en,
           score: Math.round(r.contribution * 100),
           max: Math.round(r.weight * 100),
-          explanation: r.explanation.he || r.explanation.en,
+          explanation: r.explanation[langKey] || r.explanation.he || r.explanation.en,
         }));
       let trend = "stable";
       if (data.trend === "increasing") trend = "rising";
@@ -915,11 +1046,18 @@
     }
 
     function getTheme(score) {
-      if (score <= 20) return { hex: "#10b981", bg: "rgba(16, 185, 129, 0.25)", headline: "אור ירוק למקלחת. 🛁", detail: "הסיכוי לאזעקה נמוך – אפשר להתפנק ברוגע, כולל קונדישנר.", pill: "מקלחת בטוחה", icon: "✅" };
-      if (score <= 40) return { hex: "#fbbf24", bg: "rgba(251, 191, 36, 0.25)", headline: "אפשר להיכנס למקלחת. 🚿", detail: "אבל בלי קונצרטים – דלת פתוחה ואוזן כרויה.", pill: "אפשר בזהירות", icon: "👀" };
-      if (score <= 60) return { hex: "#f97316", bg: "rgba(249, 115, 22, 0.25)", headline: "מקלחת קצרה בלבד. ⏱️", detail: "כניסה-יציאה מהירה, מגבת וביגוד בהישג יד.", pill: "מקלחת זריזה", icon: "⚠️" };
-      if (score <= 80) return { hex: "#ef4444", bg: "rgba(239, 68, 68, 0.3)", headline: "עדיף לדחות את המקלחת. 🛑", detail: "להישאר לבושים וקרוב לממ״ד.", pill: "לדחות מקלחת", icon: "🛑" };
-      return { hex: "#dc2626", bg: "rgba(220, 38, 38, 0.4)", headline: "לא להיכנס למקלחת! 🚨", detail: "להישאר ליד מרחב מוגן ולהיות מוכנים.", pill: "לא להתקלח!", icon: "🚨" };
+      const colors = [
+        { max: 20, hex: "#10b981", bg: "rgba(16, 185, 129, 0.25)", icon: "✅" },
+        { max: 40, hex: "#fbbf24", bg: "rgba(251, 191, 36, 0.25)", icon: "👀" },
+        { max: 60, hex: "#f97316", bg: "rgba(249, 115, 22, 0.25)", icon: "⚠️" },
+        { max: 80, hex: "#ef4444", bg: "rgba(239, 68, 68, 0.3)", icon: "🛑" },
+        { max: 100, hex: "#dc2626", bg: "rgba(220, 38, 38, 0.4)", icon: "🚨" },
+      ];
+      const themes = i18n[state.lang].themes;
+      for (let i = 0; i < colors.length; i++) {
+        if (score <= colors[i].max) return { ...colors[i], ...themes[i] };
+      }
+      return { ...colors[4], ...themes[4] };
     }
     function themeText(theme) { return `${theme.headline} ${theme.detail}`; }
 
@@ -1103,7 +1241,8 @@
 
         // Footer update time
         const _now = new Date();
-        el("footer_update_time").textContent = "עודכן " + _now.toLocaleTimeString("he-IL", {hour: '2-digit', minute:'2-digit'});
+        const timeStr = _now.toLocaleTimeString(state.lang === "he" ? "he-IL" : "en-US", {hour: '2-digit', minute:'2-digit'});
+        el("footer_update_time").textContent = i18n[state.lang].updatedAt(timeStr);
 
         // Recommendation
         el("t_reco").innerHTML = `<span class="reco-headline">${theme.headline}</span> <span class="reco-detail">${theme.detail}</span>`;
@@ -1148,9 +1287,10 @@
 
       function applyTrend(trendEl) {
         trendEl.classList.remove("rising", "falling", "stable");
-        if (result.trend === "rising") { trendEl.classList.add("rising"); trendEl.innerHTML = "⚠ מגמת עלייה"; }
-        else if (result.trend === "falling") { trendEl.classList.add("falling"); trendEl.innerHTML = "&#9660; מגמת ירידה"; }
-        else { trendEl.classList.add("stable"); trendEl.innerHTML = "&#9472; יציב"; }
+        const t = i18n[state.lang];
+        if (result.trend === "rising") { trendEl.classList.add("rising"); trendEl.innerHTML = t.trendRising; }
+        else if (result.trend === "falling") { trendEl.classList.add("falling"); trendEl.innerHTML = t.trendFalling; }
+        else { trendEl.classList.add("stable"); trendEl.innerHTML = t.trendStable; }
       }
       applyTrend(el("risk_trend"));
       applyTrend(el("sheet_trend"));
@@ -1204,7 +1344,7 @@
       if (navigator.share) {
         try {
           await navigator.share({
-            text: `🚿 הסיכוי לאזעקה באמצע המקלחת: ${currentScore}% – ${state.currentRiskText}\nhttps://sibunhaoref.com`
+            text: i18n[state.lang].shareText(currentScore, state.currentRiskText)
           });
         } catch (err) { console.log("Share cancelled", err); }
       }
