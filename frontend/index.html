@@ -1132,7 +1132,14 @@
       clearInterval(state.shelterCountdownInterval);
       function tick() {
         const secs = Math.ceil(Math.max(0, deadlineMs - Date.now()) / 1000);
-        el("shelter_countdown").textContent = secs > 0 ? `${secs} שניות להגיע למרחב מוגן` : "כניסה למרחב מוגן!";
+        const countdownEl = el("shelter_countdown");
+        if (secs > 0) {
+          countdownEl.style.direction = "ltr";
+          countdownEl.textContent = `${secs} שניות להגיע למרחב מוגן`;
+        } else {
+          countdownEl.style.direction = "rtl";
+          countdownEl.textContent = "כניסה למרחב מוגן!";
+        }
         if (secs <= 0) clearInterval(state.shelterCountdownInterval);
       }
       tick();
